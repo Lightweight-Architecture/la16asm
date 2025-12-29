@@ -119,7 +119,7 @@ opcode_entry_t *opcode_from_string(const char *name)
     }
 
     /* iterating through table */
-    for(unsigned char opcode = 0x00; opcode < (LA16_OPCODE_MAX - 1); opcode++)
+    for(unsigned char opcode = 0x00; opcode < LA16_OPCODE_MAX + 1; opcode++)
     {
         /* check if opcode name matches */
         if(strcmp(opcode_table[opcode].name, name) == 0)
