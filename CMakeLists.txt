@@ -28,7 +28,6 @@ add_executable(la16asm
     src/constant.c
     src/label.c
     src/opcode.c
-    src/parse.c
     src/register.c
     src/section.c
 )

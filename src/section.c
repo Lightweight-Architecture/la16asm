@@ -28,7 +28,7 @@
 #include <ctype.h>
 #include <la16asm/section.h>
 #include <la16/memory.h>
-#include <la16asm/parse.h>
+#include <lautils/parser.h>
 #include <la16asm/code.h>
 
 static char *trim(char *str)
@@ -191,10 +191,10 @@ void code_token_section(compiler_invocation_t *ci)
                     for(unsigned long a = 0; a < chain_cnt; a++)
                     {
                         /* using low level type parser */
-                        parse_type_return_t pr = parse_type_lc(chain[a]);
+                        parser_return_t pr = parse_value_from_string(chain[a]);
 
                         /* checking type */
-                        if(pr.type == PARSE_TYPE_BUFFER)
+                        if(pr.type == laParserValueTypeBuffer)
                         {
                             /* its a buffer so we copy the buffer into section */
                             char *buffer = (char*)pr.value;
@@ -239,7 +239,7 @@ void code_token_section(compiler_invocation_t *ci)
                     ci->label[ci->label_cnt - 1].rel = 0;
 
                     /* offset image address by value */
-                    parse_type_return_t pr = parse_type_lc(ci->token[i].subtoken[1]);
+                    parser_return_t pr = parse_value_from_string(ci->token[i].subtoken[1]);
                     ci->image_uaddr += pr.value;
                 }
                 i--;

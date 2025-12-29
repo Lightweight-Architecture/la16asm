@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <la16asm/parse.h>
+#include <lautils/parser.h>
 #include <la16asm/opcode.h>
 #include <la16asm/register.h>
 
@@ -162,8 +162,8 @@ void la16_compiler_lowcodeline_parameter_parser(const char *parameter,
     }
 
     /* checking if parameter is certain type */
-    parse_type_return_t pr = parse_type_lc(parameter);
-    if(pr.type != PARSE_TYPE_STRING)
+    parser_return_t pr = parse_value_from_string(parameter);
+    if(pr.type != laParserValueTypeString)
     {
         /* must be intermediate */
         *ptcrypt = LA16_CODING_IMM;

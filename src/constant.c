@@ -23,7 +23,7 @@
  */
 
 #include <la16asm/constant.h>
-#include <la16asm/parse.h>
+#include <lautils/parser.h>
 #include <la16asm/label.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,11 +67,11 @@ void code_token_constant(compiler_invocation_t *ci)
         {
             char *name = strdup(ci->token[i].subtoken[1]);
 
-            parse_type_return_t pr = parse_type_lc(ci->token[i].subtoken[2]);
+            parser_return_t pr = parse_value_from_string(ci->token[i].subtoken[2]);
 
             switch(pr.type)
             {
-                case PARSE_TYPE_STRING:
+                case laParserValueTypeString:
                     /* could be a label */
                     ci->constant[ci->constant_cnt].name = name;
                     unsigned int addr = label_lookup(ci, ci->token[i].subtoken[2], NULL);
@@ -85,14 +85,14 @@ void code_token_constant(compiler_invocation_t *ci)
                     ci->constant[ci->constant_cnt].value = (unsigned short)addr;
 
                     break;
-                case PARSE_TYPE_NUMBER:
-                case PARSE_TYPE_HEX:
-                case PARSE_TYPE_BIN:
-                case PARSE_TYPE_CHAR:
+                case laParserValueTypeDecimal:
+                case laParserValueTypeHexadecimal:
+                case laParserValueTypeBinary:
+                case laParserValueTypeCharacter:
                     ci->constant[ci->constant_cnt].name = name;
                     ci->constant[ci->constant_cnt].value = pr.value;
                     break;
-                case PARSE_TYPE_BUFFER:
+                case laParserValueTypeBuffer:
                     printf("[!] buffers in constant not supported\n");
                     exit(1);
                 default:
