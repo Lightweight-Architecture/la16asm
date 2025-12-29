@@ -104,6 +104,10 @@ opcode_entry_t opcode_table[LA16_OPCODE_MAX + 1] = {
     { .name = "crtimeset", .opcode = LA16_OPCODE_CRTIMESET },
     { .name = "crctxhndlset", .opcode = LA16_OPCODE_CRCTXHNDLSET },
     { .name = "crexchndlset", .opcode = LA16_OPCODE_CREXCHNDLSET },
+
+    /* control flow operations extension */
+    { .name = "jz", .opcode = LA16_OPCODE_JZ },
+    { .name = "jnz", .opcode = LA16_OPCODE_JNZ },
 };
 
 opcode_entry_t *opcode_from_string(const char *name)
