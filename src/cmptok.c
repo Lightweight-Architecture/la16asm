@@ -91,6 +91,14 @@ const char *cmptok(const char *token)
                 token_mode = CMPTOK_TOKEN_MODE_NONE;
             }
         }
+        else if(ltokptr[0] == ',')
+        {
+            if(token_mode == CMPTOK_TOKEN_MODE_NONE)
+            {
+                ltokptr++;
+                continue;
+            }
+        }
 
         otoken[a] = ltokptr[0];
 

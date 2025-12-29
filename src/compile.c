@@ -74,7 +74,8 @@ void compile_files(char **files,
     /* gathering code */
     get_code_buffer(files, file_cnt, ci);
 
-    /* formatting code by removing all the useless
+    /*
+     * formatting code by removing all the useless
      * and ignored stuff and extracting solely usable
      * information to process
      */

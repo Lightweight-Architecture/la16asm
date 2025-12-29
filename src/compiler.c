@@ -33,7 +33,8 @@
 
 #include <lautils/bitwalker.h>
 
-unsigned char la16_mode_create_from_codings(unsigned char a, unsigned char b)
+unsigned char la16_mode_create_from_codings(unsigned char a,
+                                            unsigned char b)
 {
     switch(a)
     {
@@ -133,7 +134,7 @@ unsigned int la16_compiler_machinecode(la16_compiler_instruction_t *cinstr)
             printf("[!] illegal mode: 0x%x\n", cinstr->mode);
             exit(1);
     }
-
+    
     return instruction;
 }
 
@@ -193,97 +194,54 @@ void la16_compiler_lowcodeline_parameter_parser(const char *parameter,
     }
 }
 
-unsigned int la16_compiler_lowcodeline(const char *code_line, const char *scope, compiler_invocation_t *ci)
+unsigned int la16_compiler_lowcodeline(compiler_token_t *ct,
+                                       const char *scope,
+                                       compiler_invocation_t *ci)
 {
-    char space = ' ';
-    char pspace = ',';
-    char nterm = '\0';
-
-    char opcode_string[20] = {};
-    char parameter_string[2][512] = {};
-
-    unsigned char mode = LA16_PARAMETER_CODING_COMBINATION_NONE;
-    unsigned char ptc[2] = {};
-    unsigned short pv[2] = {};
-
-    size_t len = strlen(code_line);
-    size_t i = 0;
-
-    // Opcode pass
-    for(size_t off = i; i < len; i++)
+    /* parameter count check */
+    if(ct->subtoken_cnt <= 0)
     {
-        if(code_line[i] == space)
-        {
-            i++;
-            break;
-        }
-        opcode_string[i - off] = code_line[i];
+        printf("[!] insufficient parameters\n");
+    }
+    else if(ct->subtoken_cnt > 3)
+    {
+        printf("[!] too many parameters\n");
     }
 
-    opcode_entry_t *opcode = opcode_from_string(opcode_string);
+    /* prepare values */
+    unsigned char ptc[2] = { LA16_CODING_NONE, LA16_CODING_NONE };
+    la16_compiler_instruction_t cinstr = {};
 
-    if(opcode == NULL)
+    /* getting opcode entry if it exists */
+    opcode_entry_t *opce = opcode_from_string(ct->subtoken[0]);
+
+    if(opce == NULL)
     {
-        printf("[!] illegal opcode: %s\n", opcode_string);
+        printf("[!] illegal opcode: %s\n", ct->subtoken[0]);
         exit(1);
     }
-
-    // Now Find out the parameters
-    for(size_t param = 0; param < 2 && i < len; param++)
+    else
     {
-        for(size_t off = 0; i < len; i++)
-        {
-            // Handle codeline special cases
-            if(code_line[i] == space)
-            {
-                continue;
-            }
-            else if(code_line[i] == pspace)
-            {
-                i++;
-                break;
-            }
-            else if(code_line[i] == nterm)
-            {
-                if(param == 0) param = 1;
-                i++;
-                break;
-            }
-
-            // If there is no special case we store it in param
-            parameter_string[param][off++] = code_line[i];
-        }
+        /* setting opcode from entry */
+        cinstr.opcode = opce->opcode;
     }
 
-    // Now decode parameters
-    la16_compiler_lowcodeline_parameter_parser(parameter_string[0], scope, &ptc[0], &pv[0], ci);
-    la16_compiler_lowcodeline_parameter_parser(parameter_string[1], scope, &ptc[1], &pv[1], ci);
+    /* decoding parameters if existing */
+    if(ct->subtoken_cnt > 1) la16_compiler_lowcodeline_parameter_parser(ct->subtoken[1], scope, &ptc[0], &(cinstr.arg)[0], ci);
+    if(ct->subtoken_cnt > 2) la16_compiler_lowcodeline_parameter_parser(ct->subtoken[2], scope, &ptc[1], &(cinstr.arg)[1], ci);
 
-    // Check if their valid
+    /* sanity check */
     for(unsigned char i = 0; i < 2; i++)
     {
         if(ptc[i] == LA16_CODING_ERR)
         {
-            printf("[!] Parameter %d is unrecognised\n", i);
+            printf("[!] parameter %d is unrecognised\n", i);
             exit(1);
         }
     }
 
-    // Now combine them
-    la16_compiler_instruction_t cinstr;
-    unsigned char cn = 0;
-
-    /* write opcode */
-    cinstr.opcode = opcode->opcode;
-
-    /* combine both modes into the real instruction mode */
+    /* creating mode from sub codings */
     cinstr.mode = la16_mode_create_from_codings(ptc[0], ptc[1]);
-
-    /* iterating through the raw mini modes */
-    for(unsigned char i = 0; i < 2; i++)
-    {
-        cinstr.arg[i] = pv[i];
-    }
 
     return la16_compiler_machinecode(&cinstr);
 }
@@ -314,7 +272,7 @@ void la16_compiler_lowlevel(compiler_invocation_t *ci)
         }
         else if(ci->token[i].type == COMPILER_TOKEN_TYPE_ASM)
         {
-            unsigned int instruction = la16_compiler_lowcodeline(ci->token[i].token, scope, ci);
+            unsigned int instruction = la16_compiler_lowcodeline(&ci->token[i], scope, ci);
             unsigned char *ibuf = (unsigned char*)&instruction;
             for(unsigned char i = 0; i < 4; i++)
             {

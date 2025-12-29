@@ -25,12 +25,9 @@
 #ifndef COMPILER_CMPTOK_H
 #define COMPILER_CMPTOK_H
 
-enum CMPTOK_TOKEN_MODE
-{
-    CMPTOK_TOKEN_MODE_NONE      = 0b00,
-    CMPTOK_TOKEN_MODE_DELIMETER = 0b01,
-    CMPTOK_TOKEN_MODE_METER     = 0b10
-};
+#define CMPTOK_TOKEN_MODE_NONE          0b00
+#define CMPTOK_TOKEN_MODE_DELIMETER     0b01
+#define CMPTOK_TOKEN_MODE_METER         0b10
 
 const char *cmptok(const char *token);
 
